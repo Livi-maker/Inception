@@ -1,13 +1,15 @@
 FROM debian:11-slim 
 
-WORKDIR /conf
-
 RUN apt-get update && \
     apt-get install -y mariadb-server mariadb-client && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /var/lib/mysql/my.cnf && chown -R mysql:mysql /var/lib/mysql
+COPY ./tools/script.sh /usr/local/bin/script.sh
+
+RUN chmod +x /usr/local/bin/script.sh
+
+RUN mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
 
 EXPOSE 3306
 
-CMD ["mysqld"] 
+CMD ["/usr/local/bin/script.sh"]
