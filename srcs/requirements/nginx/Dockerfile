@@ -9,7 +9,7 @@ RUN mkdir -p /etc/nginx/ssl && \
     apt-get update && \
     apt-get install -y openssl && \
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/smarinel.42.fr.key \
+    -keyout /etc/nginx/ssl/ldei-sva.42.fr.key \
     -out /etc/nginx/ssl/ldei-sva.42.fr.crt \
     -subj "/C=IT/ST=Lazio/L=Rome/O=42/OU=Student/CN=ldei-sva.42.fr" && \
     apt-get clean && \

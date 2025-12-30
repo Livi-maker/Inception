@@ -7,8 +7,8 @@ mariadb:
 	sudo docker run -d --name mariadb --network wordpress_network -v mariadb_data:/var/lib/mysql mariadb
 
 wordpress:
-	sudo docker build -f srcs/requirements/wordpress/Dockerfile -t worpress srcs/requirements/wordpress
-	sudo docker run -d --name wordpress --network wordpress_network -v --network wordpress_network -v wordpress_data:/var/www/html wordpress
+	sudo docker build -f srcs/requirements/wordpress/Dockerfile -t wordpress srcs/requirements/wordpress
+	sudo docker run -d --name wordpress --network wordpress_network -v wordpress_data:/var/www/html wordpress
 
 network: 
 	sudo docker network create wordpress_network 2>/dev/null || true
