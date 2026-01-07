@@ -1,17 +1,91 @@
+version: '3.8'
 services:
-    mariadb:
-        image: mariadb:latest
-        container_name: mariadb_container
-        restart: always
-        environment:
-            MYSQL_ROOT_PASSWORD: example_root_password
-            MYSQL_DATABASE: example_db
-            MYSQL_USER: example_user
-            MYSQL_PASSWORD: example_password
-        ports:
-            - "3306:3306"
-        volumes:
-            - mariadb_data:/var/lib/mysql
-
+  mariadb:
+    build:    
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    image: mariadb:10.5.29 
+    container_name: mariadb    
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ADMIN_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - wp_network
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ADMIN_PASSWORD}"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+  wordpress:
+    build:    
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    image: wordpress:6.8
+    container_name: wordpress    
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - wp_network
+    expose:
+      - "9000"
+    environment:    
+      - WORDPRESS_DB_HOST=${DB_HOST}:3306
+      - WORDPRESS_DB_NAME=${DB_NAME}
+      - WORDPRESS_DB_USER=${DB_USER}
+      - WORDPRESS_DB_PASSWORD=${DB_PASSWORD}
+      - WORDPRESS_ADMIN_USER=${WP_ADMIN_USER}
+      - WORDPRESS_ADMIN_PASSWORD=${WP_ADMIN_PASSWORD}
+      - WORDPRESS_ADMIN_EMAIL=webmaster@${NOME_INTRA}.42.fr
+      - WORDPRESS_NORMAL_USER=${WP_NORMAL_USER}
+      - WORDPRESS_NORMAL_PASSWORD=${WP_NORMAL_PASSWORD}
+      - WORDPRESS_NORMAL_EMAIL=bot@${NOME_INTRA}.42.fr
+      - WORDPRESS_TITLE=Il blog sul meteo di ${NOME_INTRA}
+      - WORDPRESS_URL=https://${NOME_INTRA}.42.fr
+      - DOMAIN_NAME=${NOME_INTRA}.42.fr
+  nginx:
+    build:    
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    image: nginx:1.18.0
+    container_name: nginx    
+    restart: unless-stopped
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    networks:
+      - wp_network
+    volumes:
+      #- nginx_ssl:/etc/nginx/ssl
+      - wordpress_data:/var/www/html
+    environment:
+      - DOMAIN_NAME=${NOME_INTRA}.42.fr
+networks:
+  wp_network:
+    driver: bridge
+    name: wordpress_network
 volumes:
-    mariadb_data:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/${NOME_INTRA}/data/mariadb
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/${NOME_INTRA}/data/wordpress

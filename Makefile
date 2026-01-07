@@ -1,6 +1,6 @@
 NAME = inception
 
-all: pulizia network mariadb wordpress
+all: clean network mariadb wordpress nginx
 
 mariadb: 
 	sudo docker build -f srcs/requirements/mariadb/Dockerfile -t mariadb srcs/requirements/mariadb
@@ -13,6 +13,16 @@ wordpress:
 network: 
 	sudo docker network create wordpress_network 2>/dev/null || true
 
-pulizia: 
+nginx:
+	sudo docker build -f srcs/requirements/nginx/Dockerfile -t nginx srcs/requirements/nginx 
+	sudo docker run -d --name nginx --network wordpress_network -v wordpress_data:/var/www/html -p 443:443 nginx
+
+down:
+	sudo docker stop mariadb wordpress nginx
+
+up:
+	sudo docker start mariadb wordpress nginx
+
+clean:
 	docker stop mariadb wordpress nginx 2>/dev/null; docker rm mariadb wordpress nginx 2>/dev/null; docker rmi mariadb wordpress nginx 2>/dev/null; docker volume rm mariadb_data wordpress_data srcs_mariadb_data srcs_wordpress_data 2>/dev/null; docker network rm wordpress_network 2>/dev/null; sudo rm -rf ~/data/mariadb ~/data/wordpress
 	sudo docker system prune -a --volumes

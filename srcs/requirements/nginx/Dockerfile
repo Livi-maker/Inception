@@ -1,6 +1,6 @@
-FROM debian:11-slim
+FROM debian:12-slim
 
-RUN apt-get update && apt-get install -y ngnix && \
+RUN apt-get update && apt-get install -y nginx && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY ./conf/nginx.conf /etc/nginx/nginx.conf
