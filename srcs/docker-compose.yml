@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   mariadb:
     build:    
@@ -47,11 +46,11 @@ services:
       - WORDPRESS_DB_PASSWORD=${DB_PASSWORD}
       - WORDPRESS_ADMIN_USER=${WP_ADMIN_USER}
       - WORDPRESS_ADMIN_PASSWORD=${WP_ADMIN_PASSWORD}
-      - WORDPRESS_ADMIN_EMAIL=webmaster@${NOME_INTRA}.42.fr
+      - WORDPRESS_ADMIN_EMAIL=liv@${NOME_INTRA}.42.fr
       - WORDPRESS_NORMAL_USER=${WP_NORMAL_USER}
       - WORDPRESS_NORMAL_PASSWORD=${WP_NORMAL_PASSWORD}
       - WORDPRESS_NORMAL_EMAIL=bot@${NOME_INTRA}.42.fr
-      - WORDPRESS_TITLE=Il blog sul meteo di ${NOME_INTRA}
+      - WORDPRESS_TITLE=Il blog sui cavalli di ${NOME_INTRA}
       - WORDPRESS_URL=https://${NOME_INTRA}.42.fr
       - DOMAIN_NAME=${NOME_INTRA}.42.fr
   nginx:

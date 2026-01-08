@@ -64,11 +64,11 @@ chmod 644 /var/www/html/wp-config.php
 if ! wp core is-installed --allow-root --path=/var/www/html; then
     echo "Installazione di WordPress..."
     wp core install \
-        --url="https://ldei-sva.42.fr" \
-        --title="wordpress_title" \
-        --admin_user="wordpress_admin" \
-        --admin_password="wordpress_password" \
-        --admin_email="liviana.deisvaldi@gmail.com" \
+        --url="${WORDPRESS_URL}" \
+        --title="${WORDPRESS_TITLE}" \
+        --admin_user="${WORDPRESS_ADMIN_USER}" \
+        --admin_password="${WORDPRESS_ADMIN_PASSWORD}" \
+        --admin_email="${WORDPRESS_ADMIN_EMAIL}" \
         --allow-root \
         --path=/var/www/html
     echo "WordPress installato con successo!"

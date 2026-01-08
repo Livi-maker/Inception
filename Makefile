@@ -1,28 +1,24 @@
 NAME = inception
+COMPOSE = sudo docker compose -f srcs/docker-compose.yml
+DATA_DIR = /home/ldei-sva/data
 
-all: clean network mariadb wordpress nginx
+all: compose
 
-mariadb: 
-	sudo docker build -f srcs/requirements/mariadb/Dockerfile -t mariadb srcs/requirements/mariadb
-	sudo docker run -d --name mariadb --network wordpress_network -v mariadb_data:/var/lib/mysql mariadb
-
-wordpress:
-	sudo docker build -f srcs/requirements/wordpress/Dockerfile -t wordpress srcs/requirements/wordpress
-	sudo docker run -d --name wordpress --network wordpress_network -v wordpress_data:/var/www/html wordpress
-
-network: 
-	sudo docker network create wordpress_network 2>/dev/null || true
-
-nginx:
-	sudo docker build -f srcs/requirements/nginx/Dockerfile -t nginx srcs/requirements/nginx 
-	sudo docker run -d --name nginx --network wordpress_network -v wordpress_data:/var/www/html -p 443:443 nginx
+compose:
+	sudo mkdir -p $(DATA_DIR)/mariadb $(DATA_DIR)/wordpress
+	$(COMPOSE) up --build -d
 
 down:
-	sudo docker stop mariadb wordpress nginx
+	$(COMPOSE) stop
 
 up:
-	sudo docker start mariadb wordpress nginx
+	$(COMPOSE) start
 
 clean:
-	docker stop mariadb wordpress nginx 2>/dev/null; docker rm mariadb wordpress nginx 2>/dev/null; docker rmi mariadb wordpress nginx 2>/dev/null; docker volume rm mariadb_data wordpress_data srcs_mariadb_data srcs_wordpress_data 2>/dev/null; docker network rm wordpress_network 2>/dev/null; sudo rm -rf ~/data/mariadb ~/data/wordpress
-	sudo docker system prune -a --volumes
+	$(COMPOSE) down -v --rmi all 2>/dev/null || true
+	sudo rm -rf $(DATA_DIR)/mariadb $(DATA_DIR)/wordpress
+	sudo docker system prune -af --volumes
+
+re: clean all
+
+.PHONY: all compose down up clean re
