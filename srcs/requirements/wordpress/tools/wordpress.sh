@@ -16,10 +16,10 @@ generate_wp_config() {
     cat > /var/www/html/wp-config.php << EOF
 <?php
 // Configurazione database
-define('DB_NAME', 'database_mysql');
-define('DB_USER', 'liv');
-define('DB_PASSWORD', 'inception1');
-define('DB_HOST', 'mariadb');
+define('DB_NAME', '${WORDPRESS_DB_NAME}');
+define('DB_USER', '${WORDPRESS_DB_USER}');
+define('DB_PASSWORD', '${WORDPRESS_DB_PASSWORD}');
+define('DB_HOST', '${WORDPRESS_DB_HOST}');
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
@@ -40,8 +40,8 @@ define('WP_DEBUG', false);
 define('FORCE_SSL_ADMIN', true);
 
 // URL e percorsi
-define('WP_HOME', 'https://ldei-sva.42.fr');
-define('WP_SITEURL', 'https://ldei-sva.42.fr');
+define('WP_HOME', '${WORDPRESS_URL}');
+define('WP_SITEURL', '${WORDPRESS_URL}');
 
 //imposta absolut path nella cartella del file stesso
 if ( !defined('ABSPATH') )

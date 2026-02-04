@@ -1,6 +1,6 @@
 NAME = inception
 COMPOSE = sudo docker compose -f srcs/docker-compose.yml
-DATA_DIR = /home/ldei-sva/data
+DATA_DIR = /home/$${USER}/data
 
 all: compose
 

@@ -35,7 +35,7 @@ if mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1; then
     echo "MariaDB già configurato, aggiorno i permessi..."
     mysql -u root -p"${MYSQL_ROOT_PASSWORD}" <<EOF
 -- Crea database se non esiste
-CREATE DATABASE IF NOT EXISTS \`database_mysql\`;
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 
 -- Rimuovi utente esistente per ricrearlo
 DROP USER IF EXISTS '${MYSQL_USER}'@'%';
@@ -44,7 +44,7 @@ DROP USER IF EXISTS '${MYSQL_USER}'@'%';
 CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 
 -- Concedi privilegi
-GRANT ALL PRIVILEGES ON \`database_mysql\`.* TO '${MYSQL_USER}'@'%';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 
 FLUSH PRIVILEGES;
 EOF
@@ -53,16 +53,16 @@ else
     echo "Primo setup di MariaDB..."
     mysql -u root <<EOF
 -- Forza root a usare password (evita unix_socket)
-ALTER USER IF EXISTS 'root'@'localhost' IDENTIFIED BY 'inception';
+ALTER USER IF EXISTS 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 
 -- Crea database
-CREATE DATABASE IF NOT EXISTS \`database_mysql\`;
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 
 -- Crea utente WordPress (% copre tutti gli host)
 CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 
 -- Concedi privilegi
-GRANT ALL PRIVILEGES ON \`database_mysql\`.* TO '${MYSQL_USER}'@'%';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 
 -- Rimuovi account di default
 DELETE FROM mysql.user WHERE User='';
@@ -74,8 +74,12 @@ fi
 
 echo "MariaDB configurato e pronto!"
 
+# Debug: mostra gli utenti creati
+echo "Debug - Utenti MariaDB:"
+mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT User, Host FROM mysql.user WHERE User='${MYSQL_USER}' OR User='root';" 2>/dev/null || echo "Debug fallito - continuo..."
+
 echo "Stop MariaDB..."
-mysqladmin shutdown -u root -p "${MYSQL_ROOT_PASSWORD}"
+mysqladmin shutdown -u root -p"${MYSQL_ROOT_PASSWORD}"
 
 echo "Avvio definitivo di MariaDB..."
 exec mysqld --user=mysql --datadir=/var/lib/mysql --bind-address=0.0.0.0
