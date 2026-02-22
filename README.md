@@ -1,8 +1,22 @@
 *This project has been created as part of the 42 curriculum by <ldei-sva>.*
 
-# Inception
+<div align="center">
 
-## Description
+# 🐳 Inception
+
+[![42 School](https://img.shields.io/badge/42-School-000000?style=flat&logo=42&logoColor=white)](https://42.fr)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=flat&logo=mariadb&logoColor=white)](https://mariadb.org/)
+[![WordPress](https://img.shields.io/badge/WordPress-21759B?style=flat&logo=wordpress&logoColor=white)](https://wordpress.org/)
+[![NGINX](https://img.shields.io/badge/NGINX-009639?style=flat&logo=nginx&logoColor=white)](https://nginx.org/)
+
+*A Docker-based infrastructure project featuring NGINX, WordPress, and MariaDB*
+
+</div>
+
+---
+
+## 📖 Description
 
 **Inception** is a system administration project from the 42 curriculum focused on containerization, service orchestration, and infrastructure design.
 
@@ -21,7 +35,29 @@ The final result is a reproducible, modular, and isolated multi-container enviro
 
 ---
 
-## Project Architecture & Design Choices
+## 🏗️ Architecture Overview
+
+```
+                    ┌─────────────────────────────────────────────────────┐
+                    │                   Docker Network                     │
+                    │                    (inception)                       │
+                    │                                                      │
+    HTTPS :443      │    ┌──────────┐      ┌───────────┐    ┌──────────┐  │
+   ─────────────────┼───►│  NGINX   │─────►│ WordPress │───►│ MariaDB  │  │
+                    │    │ (TLS/SSL)│ :9000│  (PHP-FPM)│:3306│   (DB)   │  │
+                    │    └──────────┘      └───────────┘    └──────────┘  │
+                    │          │                 │                │       │
+                    └──────────┼─────────────────┼────────────────┼───────┘
+                               │                 │                │
+                    ┌──────────▼─────┐  ┌───────▼──────┐  ┌──────▼───────┐
+                    │   Certificates │  │   WordPress  │  │    MariaDB   │
+                    │     Volume     │  │    Volume    │  │    Volume    │
+                    └────────────────┘  └──────────────┘  └──────────────┘
+```
+
+---
+
+## 🎯 Project Architecture & Design Choices
 
 ### Why Docker?
 
@@ -76,52 +112,94 @@ Docker allows applications to run inside lightweight containers that share the h
 
 ---
 
-## Instructions
+## 🛠️ Services Overview
 
-### Requirements
+| Service | Description | Port |
+|---------|-------------|------|
+| **NGINX** | Reverse proxy with TLS/SSL termination | 443 (HTTPS) |
+| **WordPress** | CMS running with PHP-FPM | 9000 (internal) |
+| **MariaDB** | Database server for WordPress | 3306 (internal) |
+
+---
+
+## 🚀 Instructions
+
+### 📋 Requirements
 
 * Docker
 * Docker Compose
+* Make (optional, for Makefile commands)
 
-### Installation & Execution
+### ⚙️ Installation & Execution
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/<username>/inception.git
-   cd inception
+   git clone https://github.com/Livi-maker/Inception.git
+   cd Inception
    ```
 
-2. Build and start the infrastructure:
+2. Create your environment file:
 
    ```bash
-   docker compose up --build
+   cp srcs/.env.example srcs/.env
+   # Edit srcs/.env with your credentials
    ```
 
-3. Stop the services:
+3. Build and start the infrastructure:
 
    ```bash
-   docker compose down
+   make          # or: docker compose -f srcs/docker-compose.yml up --build
    ```
 
-4. Remove volumes (if needed):
+4. Stop the services:
 
    ```bash
-   docker compose down -v
+   make down     # or: docker compose -f srcs/docker-compose.yml down
    ```
 
-### Project Structure
+5. Remove volumes (if needed):
+
+   ```bash
+   make fclean   # or: docker compose -f srcs/docker-compose.yml down -v
+   ```
+
+### 🔧 Makefile Commands
+
+| Command | Description |
+|---------|-------------|
+| `make` | Build and start all containers |
+| `make down` | Stop all containers |
+| `make fclean` | Stop containers and remove volumes |
+| `make re` | Rebuild everything from scratch |
+
+### 📁 Project Structure
 
 ```
 .
-├── Makefile
-├── docker-compose.yml
-├── srcs/
-│   ├── requirements/
-│   │   ├── nginx/
-│   │   ├── mariadb/
-│   │   └── wordpress/
-│   └── .env
+├── Makefile                    # Main build automation
+├── README.md                   # Project documentation
+├── DEV_DOC.md                  # Developer documentation
+├── USER_DOC.md                 # User documentation
+└── srcs/
+    ├── docker-compose.yml      # Service orchestration
+    ├── .env                    # Environment variables
+    └── requirements/
+        ├── nginx/
+        │   ├── Dockerfile      # NGINX container build
+        │   └── conf/
+        │       └── nginx.conf  # NGINX configuration
+        ├── mariadb/
+        │   ├── Dockerfile      # MariaDB container build
+        │   ├── Makefile
+        │   └── tools/
+        │       └── script.sh   # Database init script
+        └── wordpress/
+            ├── Dockerfile      # WordPress container build
+            ├── conf/
+            │   └── www.conf    # PHP-FPM pool config
+            └── tools/
+                └── wordpress.sh # WordPress setup script
 ```
 
 * `docker-compose.yml` defines services, volumes, and networks.
@@ -130,23 +208,23 @@ Docker allows applications to run inside lightweight containers that share the h
 
 ---
 
-## Resources
+## 📚 Resources
 
 ### Official Documentation
 
-* Docker Official Documentation
-* Docker Compose Documentation
-* NGINX Documentation
-* MariaDB Documentation
-* WordPress Documentation
+* [Docker Official Documentation](https://docs.docker.com/)
+* [Docker Compose Documentation](https://docs.docker.com/compose/)
+* [NGINX Documentation](https://nginx.org/en/docs/)
+* [MariaDB Documentation](https://mariadb.com/kb/en/)
+* [WordPress Documentation](https://developer.wordpress.org/)
 
 ### Articles & Tutorials
 
-* Docker networking and volumes best practices
-* Container security fundamentals
-* Infrastructure design patterns
+* [Docker networking best practices](https://docs.docker.com/network/)
+* [Docker volumes guide](https://docs.docker.com/storage/volumes/)
+* [Container security fundamentals](https://docs.docker.com/engine/security/)
 
-### AI Usage Disclosure
+### 🤖 AI Usage Disclosure
 
 AI tools (such as ChatGPT) were used during this project for:
 
@@ -159,13 +237,23 @@ AI was **not** used to automatically generate full project configurations withou
 
 ---
 
-## Additional Notes
+## 📝 Additional Notes
 
 This project emphasizes:
 
-* Clean infrastructure design
-* Service isolation
-* Secure configuration management
-* Reproducibility and portability
+* ✅ Clean infrastructure design
+* ✅ Service isolation
+* ✅ Secure configuration management
+* ✅ Reproducibility and portability
 
 The objective is not only to make services run, but to understand *how* and *why* containerized infrastructures work.
+
+---
+
+<div align="center">
+
+**Made with ❤️ at 42**
+
+</div>
+
+---

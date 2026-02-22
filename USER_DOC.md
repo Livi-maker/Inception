@@ -230,11 +230,3 @@ This stack provides:
 * Isolated and reproducible containerized services
 
 The infrastructure is designed to simulate a real-world production environment using Docker.
-
----
-
-If needed, I can also generate:
-
-* An `ADMIN_DOC.md` (more technical documentation)
-* A shorter evaluation-ready version
-* A version strictly aligned with 42 subject evaluation criteria
