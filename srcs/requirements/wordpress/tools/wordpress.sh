@@ -1,6 +1,16 @@
 #!/bin/bash
 set -e
 
+# Leggi i secrets dai file
+export WORDPRESS_DB_HOST=$(cat /run/secrets/db_host)
+export WORDPRESS_DB_NAME=$(cat /run/secrets/db_name)
+export WORDPRESS_DB_USER=$(cat /run/secrets/db_user)
+export WORDPRESS_DB_PASSWORD=$(cat /run/secrets/db_password)
+export WORDPRESS_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
+export WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+export WORDPRESS_NORMAL_USER=$(cat /run/secrets/wp_normal_user)
+export WORDPRESS_NORMAL_PASSWORD=$(cat /run/secrets/wp_normal_password)
+
 # Crea la directory per il socket PHP-FPM se non esiste
 mkdir -p /run/php
 

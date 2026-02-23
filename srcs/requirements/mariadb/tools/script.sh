@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Leggi i secrets dai file
+export MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_admin_password)
+export MYSQL_DATABASE=$(cat /run/secrets/db_name)
+export MYSQL_USER=$(cat /run/secrets/db_user)
+export MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+
+echo "{$MYSQL_ROOT_PASSWORD}"
+echo "{$MYSQL_DATABASE}"
+
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Inizializzazione del database MariaDB..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
@@ -16,47 +25,24 @@ echo "MariaDB è pronto!"
 
 echo "Forzo autenticazione root con password (richiesto dal subject)..."
 if mysql -u root -e "SELECT 1;" >/dev/null 2>&1; then
-    mysql -u root <<EOF
-ALTER USER IF EXISTS 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-FLUSH PRIVILEGES
-EOF
-elif mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1; then
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" <<EOF
+        mysql -u root <<EOF
+-- Forza root a usare password (evita unix_socket)
 ALTER USER IF EXISTS 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 FLUSH PRIVILEGES;
 EOF
+
+elif mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1; then
+    echo "MariaDB già configurato, aggiorno i permessi..."
 else
-    echo "Errore: impossibile autenticarsi come root per configurare la password."
     exit 1
 fi
 
-
-if mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1; then
-    echo "MariaDB già configurato, aggiorno i permessi..."
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" <<EOF
+mysql -u root -p"${MYSQL_ROOT_PASSWORD}" <<EOF
 -- Crea database se non esiste
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 
 -- Rimuovi utente esistente per ricrearlo
 DROP USER IF EXISTS '${MYSQL_USER}'@'%';
-
--- Crea utente WordPress (% copre tutti gli host)
-CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-
--- Concedi privilegi
-GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
-
-FLUSH PRIVILEGES;
-EOF
-
-else
-    echo "Primo setup di MariaDB..."
-    mysql -u root <<EOF
--- Forza root a usare password (evita unix_socket)
-ALTER USER IF EXISTS 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-
--- Crea database
-CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 
 -- Crea utente WordPress (% copre tutti gli host)
 CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
@@ -70,7 +56,6 @@ DROP DATABASE IF EXISTS test;
 
 FLUSH PRIVILEGES;
 EOF
-fi
 
 echo "MariaDB configurato e pronto!"
 

@@ -18,7 +18,7 @@ services:
     expose:
       - "3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$(cat /run/secrets/db_admin_password)"]
       interval: 15s
       timeout: 10s
       retries: 10
@@ -39,29 +39,21 @@ services:
       - wp_network
     expose:
       - "9000"
-    environment:    
-      - WORDPRESS_DB_HOST=run/secrets/db_host:3306
-      - WORDPRESS_DB_NAME=run/secrets/db_name
-      - WORDPRESS_DB_USER=run/secrets/db_user
-      - WORDPRESS_DB_PASSWORD=run/secrets/db_password
-      - WORDPRESS_ADMIN_USER=run/secrets/wp_admin_user
-      - WORDPRESS_ADMIN_PASSWORD=run/secrets/wp_admin_password
-      - WORDPRESS_ADMIN_EMAIL=liv@ldei-sva.42.fr
-      - WORDPRESS_NORMAL_USER=run/secrets/wp_normal_user
-      - WORDPRESS_NORMAL_PASSWORD=run/secrets/wp_normal_password
-      - WORDPRESS_NORMAL_EMAIL=bot@ldei-sva.42.fr
-      - WORDPRESS_TITLE=Il blog sui cavalli di ldei-sva
-      - WORDPRESS_URL=https://ldei-sva.42.fr
-      - DOMAIN_NAME=ldei-sva.42.fr
+    environment:  
+      - WORDPRESS_ADMIN_EMAIL=liv@${NOME_INTRA}.42.fr
+      - WORDPRESS_NORMAL_EMAIL=bot@${NOME_INTRA}.42.fr
+      - WORDPRESS_TITLE=Il blog sui cavalli di ${NOME_INTRA}
+      - WORDPRESS_URL=https://${NOME_INTRA}.42.fr
+      - DOMAIN_NAME=${NOME_INTRA}.42.fr
     secrets:
       - db_host
       - db_name
       - db_user
       - db_password
-      - wp_admin_password
       - wp_admin_user
-      - wp_normal_password
+      - wp_admin_password
       - wp_normal_user
+      - wp_normal_password
   nginx:
     build:    
       context: ./requirements/nginx
@@ -79,7 +71,7 @@ services:
       #- nginx_ssl:/etc/nginx/ssl
       - wordpress_data:/var/www/html
     environment:
-      - DOMAIN_NAME=ldei-sva.42.fr
+      - DOMAIN_NAME=${NOME_INTRA}.42.fr
 networks:
   wp_network:
     driver: bridge
@@ -90,29 +82,29 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/ldei-sva/data/mariadb
+      device: /home/${NOME_INTRA}/data/mariadb
   wordpress_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/ldei-sva/data/wordpress
+      device: /home/${NOME_INTRA}/data/wordpress
 secrets:
-  db_admin_password:
-    file: ../secrets/db_admin_password.txt
   db_host:
     file: ../secrets/db_host.txt
+  db_admin_password:
+    file: ../secrets/db_admin_password.txt
   db_name:
     file: ../secrets/db_name.txt
-  db_password:
-    file: ../secrets/db_password.txt
   db_user:
     file: ../secrets/db_user.txt
+  db_password:
+    file: ../secrets/db_password.txt
+  wp_admin_user:
+    file: ../secrets/wp_admin_user.txt
   wp_admin_password:
     file: ../secrets/wp_admin_password.txt
-  wp_admin_user: 
-    file: ../secrets/wp_admin_user.txt
-  wp_normal_password:
-    file: ../secrets/wp_normal_password.txt
   wp_normal_user:
     file: ../secrets/wp_normal_user.txt
+  wp_normal_password:
+    file: ../secrets/wp_normal_password.txt
