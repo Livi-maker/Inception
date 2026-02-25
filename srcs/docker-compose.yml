@@ -40,11 +40,11 @@ services:
     expose:
       - "9000"
     environment:  
-      - WORDPRESS_ADMIN_EMAIL=liv@${NOME_INTRA}.42.fr
-      - WORDPRESS_NORMAL_EMAIL=bot@${NOME_INTRA}.42.fr
-      - WORDPRESS_TITLE=Il blog sui cavalli di ${NOME_INTRA}
-      - WORDPRESS_URL=https://${NOME_INTRA}.42.fr
-      - DOMAIN_NAME=${NOME_INTRA}.42.fr
+      - WORDPRESS_ADMIN_EMAIL=liv@ldei-sva.42.fr
+      - WORDPRESS_NORMAL_EMAIL=bot@ldei-sva.42.fr
+      - WORDPRESS_TITLE=Il blog sui cavalli di ldei-sva
+      - WORDPRESS_URL=https://ldei-sva.42.fr
+      - DOMAIN_NAME=ldei-sva.42.fr
     secrets:
       - db_host
       - db_name
@@ -71,7 +71,7 @@ services:
       #- nginx_ssl:/etc/nginx/ssl
       - wordpress_data:/var/www/html
     environment:
-      - DOMAIN_NAME=${NOME_INTRA}.42.fr
+      - DOMAIN_NAME=ldei-sva.42.fr
 networks:
   wp_network:
     driver: bridge
@@ -82,13 +82,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/${NOME_INTRA}/data/mariadb
+      device: /home/ldei-sva/data/mariadb
   wordpress_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/${NOME_INTRA}/data/wordpress
+      device: /home/ldei-sva/data/wordpress
 secrets:
   db_host:
     file: ../secrets/db_host.txt
