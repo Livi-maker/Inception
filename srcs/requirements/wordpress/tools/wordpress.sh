@@ -87,10 +87,10 @@ else
 fi
 
 # Crea un utente normale se non esiste
-if ! wp user get "normal_user" --allow-root --path=/var/www/html > /dev/null 2>&1; then
+if ! wp user get "${WORDPRESS_NORMAL_USER}" --allow-root --path=/var/www/html > /dev/null 2>&1; then
     echo "Creazione dell'utente normale..."
-    wp user create "normal_user" "mariorossi@gmail.com" \
-        --user_pass="inception" \
+    wp user create "${WORDPRESS_NORMAL_USER}" "${WORDPRESS_NORMAL_EMAIL}" \
+        --user_pass="${WORDPRESS_NORMAL_PASSWORD}" \
         --role=author \
         --allow-root \
         --path=/var/www/html
